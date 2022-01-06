@@ -3,6 +3,7 @@ package paranoid
 import (
 	"errors"
 	"net"
+	"sync"
 )
 
 var (
@@ -16,6 +17,7 @@ type IPBlocker struct {
 	idx        int
 	length     int
 	result     bool
+	mutex      *sync.Mutex
 }
 
 func NewIPBlocker(list []*net.IPNet, defaultPermittion bool) (*IPBlocker, error) {
@@ -28,10 +30,14 @@ func NewIPBlocker(list []*net.IPNet, defaultPermittion bool) (*IPBlocker, error)
 	this.permission = defaultPermittion
 	this.idx = 0
 	this.length = len(list)
+	this.mutex = new(sync.Mutex)
 	return this, nil
 }
 
 func (this *IPBlocker) IsForbiddenIP(ip net.IP) bool {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+
 	for this.idx < this.length {
 		if this.list[this.idx].Contains(ip) {
 			this.idx = 0
