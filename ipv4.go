@@ -25,12 +25,12 @@ var (
 )
 
 var (
-	IPv4RangesPrivate         = []*net.IPNet{IPv4PrivateClassA, IPv4PrivateClassB, IPv4PrivateClassC}
-	IPv4RangesInternal        = []*net.IPNet{IPv4SharedAddr, IPv4Loopback, IPv4LinkLocal}
-	IPv4RangesReserved        = []*net.IPNet{IPv4IETFProtoAssign, IPv4Reserved}
-	IPv4RangesTest            = []*net.IPNet{IPv4TestNet1, IPv4TestNet2, IPv4TestNet3, IPv4MCastTest, IPv4NetworkBench}
-	IPv4RangesMultiCast       = []*net.IPNet{IPv4Multicast, IPv4LimitedBroadCast}
-	IPv4RangesBlockRecommends = []*net.IPNet{
+	IPv4RangesPrivate          = []*net.IPNet{IPv4PrivateClassA, IPv4PrivateClassB, IPv4PrivateClassC}
+	IPv4RangesInternal         = []*net.IPNet{IPv4SharedAddr, IPv4Loopback, IPv4LinkLocal}
+	IPv4RangesReserved         = []*net.IPNet{IPv4IETFProtoAssign, IPv4Reserved}
+	IPv4RangesTest             = []*net.IPNet{IPv4TestNet1, IPv4TestNet2, IPv4TestNet3, IPv4MCastTest, IPv4NetworkBench}
+	IPv4RangesMultiCast        = []*net.IPNet{IPv4Multicast, IPv4LimitedBroadCast}
+	IPv4RangesBlockRecommended = []*net.IPNet{
 		IPv4PrivateClassA,
 		IPv4PrivateClassB,
 		IPv4PrivateClassC,

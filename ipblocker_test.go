@@ -46,7 +46,7 @@ func BenchmarkIPBlocker(b *testing.B) {
 		ips        = make([]net.IP, 64)
 	)
 
-	blocker, _ := NewIPBlocker(IPv4RangesBlockRecommends, true)
+	blocker, _ := NewIPBlocker(IPv4RangesBlockRecommended, true)
 
 	for idx := 0; idx < 64; idx++ {
 		rand.Read(src)
