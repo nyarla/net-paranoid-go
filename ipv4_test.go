@@ -46,10 +46,10 @@ func TestIPv4(t *testing.T) {
 		{false, `169.253.255.255`, IPv4LinkLocal},
 		{false, `169.255.0.0`, IPv4LinkLocal},
 
-		{false, `191.255.255.255`, IPv4IETFProtoAssign},
-		{true, `192.0.0.0`, IPv4IETFProtoAssign},
-		{true, `192.0.0.255`, IPv4IETFProtoAssign},
-		{false, `192.0.1.0`, IPv4IETFProtoAssign},
+		{false, `191.255.255.255`, IPv4SpecialPurpose},
+		{true, `192.0.0.0`, IPv4SpecialPurpose},
+		{true, `192.0.0.255`, IPv4SpecialPurpose},
+		{false, `192.0.1.0`, IPv4SpecialPurpose},
 
 		{false, `239.255.255.255`, IPv4Reserved},
 		{true, `240.0.0.0`, IPv4Reserved},
@@ -71,10 +71,10 @@ func TestIPv4(t *testing.T) {
 		{true, `203.0.113.255`, IPv4TestNet3},
 		{false, `203.0.114.0`, IPv4TestNet3},
 
-		{false, `233.251.255.255`, IPv4MCastTest},
-		{true, `233.252.0.0`, IPv4MCastTest},
-		{true, `233.252.0.255`, IPv4Multicast},
-		{false, `233.252.1.0`, IPv4MCastTest},
+		{false, `233.251.255.255`, IPv4MulticastTest},
+		{true, `233.252.0.0`, IPv4MulticastTest},
+		{true, `233.252.0.255`, IPv4MulticastTest},
+		{false, `233.252.1.0`, IPv4MulticastTest},
 
 		{false, `198.17.255.255`, IPv4NetworkBench},
 		{true, `198.18.0.0`, IPv4NetworkBench},
