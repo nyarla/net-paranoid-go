@@ -19,8 +19,7 @@ func TestIPBlocker(t *testing.T) {
 		t.Fatal("In this case, this function must throw ErrIPNetMissing error.")
 	}
 
-	list = make([]*net.IPNet, 1)
-	list[0] = IPv4PrivateClassA
+	list = IPBlockRecommended
 
 	if blocker, err = NewIPBlocker(list, true); err != nil {
 		t.Fatal("In this case, this function should not return error.")
