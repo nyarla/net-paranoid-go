@@ -4,8 +4,8 @@ import (
 	"net"
 )
 
-// referenced from https://en.wikipedia.org/wiki/IPv4
 var (
+	// List of IPv4 blocks
 	IPv4PrivateClassA    = &net.IPNet{IP: net.IPv4(10, 0, 0, 0), Mask: net.CIDRMask(8, 32)}
 	IPv4SharedAddr       = &net.IPNet{IP: net.IPv4(100, 64, 0, 0), Mask: net.CIDRMask(10, 32)}
 	IPv4Loopback         = &net.IPNet{IP: net.IPv4(127, 0, 0, 0), Mask: net.CIDRMask(8, 32)}
@@ -25,6 +25,7 @@ var (
 )
 
 var (
+	// Pre-defined IPv4 block ranges
 	IPv4RangesPrivate          = []*net.IPNet{IPv4PrivateClassA, IPv4PrivateClassB, IPv4PrivateClassC}
 	IPv4RangesInternal         = []*net.IPNet{IPv4SharedAddr, IPv4Loopback, IPv4LinkLocal}
 	IPv4RangesReserved         = []*net.IPNet{IPv4SpecialPurpose, IPv4Reserved}

@@ -3,6 +3,7 @@ package paranoid
 import "net"
 
 var (
+	// Lsit of IPv6 blocks
 	IPv6Loopback                    = &net.IPNet{IP: net.ParseIP(`::1`), Mask: net.CIDRMask(128, 128)}
 	IPv6DeprecatedIPv4Compatible    = &net.IPNet{IP: net.ParseIP(`::`), Mask: net.CIDRMask(96, 128)}
 	IPv6MappingIPv4                 = &net.IPNet{IP: net.ParseIP(`::ffff:0:0`), Mask: net.CIDRMask(96, 128)}
@@ -35,6 +36,7 @@ var (
 )
 
 var (
+	// Pre-defined IPv6 block ranges
 	IPv6BlockRecommended = []*net.IPNet{
 		{IP: net.ParseIP(`::`), Mask: net.CIDRMask(3, 128)},
 		{IP: net.ParseIP(`4000::`), Mask: net.CIDRMask(2, 128)},
