@@ -25,3 +25,22 @@ func TestHostRule(t *testing.T) {
 		}
 	}
 }
+
+func BenchmarkHostRule(b *testing.B) {
+	var (
+		hostname = `localhost`
+		same     = NewHostRule(IsSameHost, `localhost`)
+		prefix   = NewHostRule(HostHasPrefix, `cdn`)
+		suffix   = NewHostRule(HostHasSuffix, `example.com`)
+	)
+
+	b.ReportAllocs()
+	b.ResetTimer()
+
+	for count := 0; count < b.N; count++ {
+		same.IsForbiddenHost(hostname)
+		prefix.IsForbiddenHost(hostname)
+		suffix.IsForbiddenHost(hostname)
+	}
+
+}
