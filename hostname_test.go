@@ -1,46 +1,89 @@
 package paranoid
 
-import "testing"
+import (
+	"reflect"
+	"regexp"
+	"runtime"
+	"strings"
+	"testing"
+)
 
-func TestHostRule(t *testing.T) {
+func TestHostMatchers(t *testing.T) {
 	tests := []struct {
-		kind   Kind
-		dest   string
-		rule   string
-		result bool
+		matcher func(src, cmp string) bool
+		src     string
+		cmp     string
+		result  bool
 	}{
 		{IsSameHost, `localhost`, `localhost`, true},
-		{IsSameHost, `localhost`, `local`, false},
+		{IsSameHost, `localhost`, `example.com`, false},
 
-		{HostHasPrefix, `cdn.example.com`, `cdn`, true},
-		{HostHasPrefix, `cdn.example.com`, `assets`, false},
+		{HostPrefix, `cdn.example.com`, `cdn`, true},
+		{HostPrefix, `assets.example.com`, `cdn`, false},
 
-		{HostHasSuffix, `cdn.example.com`, `example.com`, true},
-		{HostHasSuffix, `assets.example.com`, `cdn.example.com`, false},
+		{HostSuffix, `cdn.example.com`, `example.com`, true},
+		{HostSuffix, `cdn.example.com`, `net`, false},
 	}
 
 	for _, test := range tests {
-		if result := NewHostRule(test.kind, test.rule).IsForbiddenHost(test.dest); result != test.result {
-			t.Errorf("failed to test:\nkind: %s\ndest: %s\nrule: %s\nwant: %v\nresult: %v", test.kind.String(), test.dest, test.rule, test.result, result)
+		fname := strings.Split(
+			(runtime.FuncForPC(reflect.ValueOf(test.matcher).Pointer()).Name()), `.`,
+		)
+
+		matcher := StringHostMatcher(test.cmp, test.matcher)
+
+		if result := matcher.MatchHost(test.src); result != test.result {
+			t.Errorf("Test %s failed:\nsrc: %s\ncmp: %s\nwant: %v\nresult: %v",
+				fname[len(fname)-1],
+				test.src, test.cmp, test.result, result,
+			)
 		}
+	}
+
+	re := RegexpHostMatcher(regexp.MustCompile(`^localhost$`))
+	if result := re.MatchHost(`localhost`); result != true {
+		t.Errorf("Test RegexpHostMatcher.MatchHost failed:\nsrc: localhost\ncmp: ^localhost$\nwant: %v\nresult: %v",
+			true, result,
+		)
 	}
 }
 
-func BenchmarkHostRule(b *testing.B) {
-	var (
-		hostname = `localhost`
-		same     = NewHostRule(IsSameHost, `localhost`)
-		prefix   = NewHostRule(HostHasPrefix, `cdn`)
-		suffix   = NewHostRule(HostHasSuffix, `example.com`)
+func TestHostRules(t *testing.T) {
+	blocker := NewBlockHostRules(
+		StringHostMatcher(`localhost`, IsSameHost),
+		StringHostMatcher(`localhost`, HostPrefix),
+		StringHostMatcher(`localhost`, HostSuffix),
 	)
+
+	allower := NewAllowHostRules(
+		StringHostMatcher(`localhost`, IsSameHost),
+		StringHostMatcher(`localhost`, HostPrefix),
+		StringHostMatcher(`localhost`, HostSuffix),
+	)
+
+	if !blocker.IsForbiddenHost(`localhost`) {
+		t.Errorf("Test HostRules.IsForbiddenHost failed:\nwant: true\ngot: false")
+	}
+
+	if allower.IsForbiddenHost(`localhost`) {
+		t.Errorf("Test HostRules.IsForbiddenHost failed:\nwant: false\ngot: true")
+	}
+}
+
+func BenchmarkHostRules(b *testing.B) {
+	allower := NewAllowHostRules(
+		StringHostMatcher(`localhost`, IsSameHost),
+		StringHostMatcher(`localhost`, HostPrefix),
+		StringHostMatcher(`localhost`, HostSuffix),
+		RegexpHostMatcher(regexp.MustCompile(`^localhost$`)),
+	)
+
+	hostname := `localhost`
 
 	b.ReportAllocs()
 	b.ResetTimer()
 
-	for count := 0; count < b.N; count++ {
-		same.IsForbiddenHost(hostname)
-		prefix.IsForbiddenHost(hostname)
-		suffix.IsForbiddenHost(hostname)
+	for idx := 0; idx < b.N; idx++ {
+		allower.IsForbiddenHost(hostname)
 	}
-
 }

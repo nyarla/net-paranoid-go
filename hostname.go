@@ -1,95 +1,104 @@
 package paranoid
 
 import (
+	"regexp"
+	"strings"
 	"sync"
 )
 
-type Kind string
-
-const (
-	IsSameHost    Kind = "IsSameHost"
-	HostHasPrefix Kind = "HostHasPrefix"
-	HostHasSuffix Kind = "HostHasSuffix"
-)
-
-func (k Kind) String() string {
-	return string(k)
+func IsSameHost(src, cmp string) bool {
+	return src == cmp
 }
 
-type HostRule struct {
-	kind  Kind
-	addr  string
-	idx   int
-	mutex *sync.Mutex
+func HostPrefix(src, cmp string) bool {
+	return strings.HasPrefix(src, cmp)
 }
 
-func NewHostRule(kind Kind, addr string) *HostRule {
-	this := new(HostRule)
-	this.kind = kind
-	this.addr = addr
-	this.mutex = new(sync.Mutex)
+func HostSuffix(src, cmp string) bool {
+	return strings.HasSuffix(src, cmp)
+}
+
+type HostMatcher interface {
+	MatchHost(src string) bool
+}
+
+type stringHostMatcher struct {
+	cmp     string
+	matcher func(src, cmp string) bool
+}
+
+func (this *stringHostMatcher) MatchHost(src string) bool {
+	return this.matcher(src, this.cmp)
+}
+
+func StringHostMatcher(cmp string, matcher func(src, cmp string) bool) HostMatcher {
+	this := new(stringHostMatcher)
+	this.cmp = cmp
+	this.matcher = matcher
 	return this
 }
 
-func (this *HostRule) IsForbiddenHost(addr string) bool {
-	switch this.kind {
-	case IsSameHost:
-		return this.addr == addr
-	case HostHasPrefix:
-		return this.hasPrefix(addr)
-	case HostHasSuffix:
-		return this.hasSuffix(addr)
-	default:
-		return false
-	}
+type regexHostMatcher struct {
+	re *regexp.Regexp
 }
 
-func (this *HostRule) Kind() Kind {
-	return this.kind
+func (this *regexHostMatcher) MatchHost(src string) bool {
+	return this.re.MatchString(src)
 }
 
-func (this *HostRule) Addr() string {
-	return this.addr
+func RegexpHostMatcher(re *regexp.Regexp) HostMatcher {
+	this := new(regexHostMatcher)
+	this.re = re
+	return this
 }
 
-func (this *HostRule) hasPrefix(dest string) bool {
+type HostRules interface {
+	IsForbiddenHost(addr string) bool
+}
+
+type hostRules struct {
+	permission bool
+	matchers   []HostMatcher
+	idx        int
+	length     int
+	mutex      *sync.Mutex
+}
+
+func NewBlockHostRules(matchers ...HostMatcher) HostRules {
+	this := new(hostRules)
+	this.permission = true
+	this.matchers = matchers
+	this.idx = 0
+	this.length = len(matchers)
+	this.mutex = new(sync.Mutex)
+
+	return this
+}
+
+func NewAllowHostRules(matchers ...HostMatcher) HostRules {
+	this := new(hostRules)
+	this.permission = false
+	this.matchers = matchers
+	this.idx = 0
+	this.length = len(matchers)
+	this.mutex = new(sync.Mutex)
+
+	return this
+}
+
+func (this *hostRules) IsForbiddenHost(src string) bool {
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 
-	if len(this.addr) > len(dest) {
-		return false
-	}
-
-	for this.idx < len(this.addr) {
-		if dest[this.idx] != this.addr[this.idx] {
+	for this.idx < this.length {
+		if this.matchers[this.idx].MatchHost(src) {
 			this.idx = 0
-			return false
+			return this.permission
 		}
 
 		this.idx++
 	}
 
 	this.idx = 0
-	return true
-}
-
-func (this *HostRule) hasSuffix(dest string) bool {
-	this.mutex.Lock()
-	defer this.mutex.Unlock()
-
-	if len(this.addr) > len(dest) {
-		return false
-	}
-
-	this.idx = len(this.addr) - 1
-	for this.idx >= 0 {
-		if (dest[(len(dest)-len(this.addr))+this.idx]) != this.addr[this.idx] {
-			return false
-		}
-
-		this.idx--
-	}
-
-	this.idx = 0
-	return true
+	return !this.permission
 }
