@@ -7,28 +7,28 @@ import (
 
 type IPRules struct {
 	permission bool
-	ranges     []func(addr net.IP) bool
+	matchers   []func(addr net.IP) bool
 	idx        int
 	length     int
 	mutex      *sync.Mutex
 }
 
-func NewBlockIPRules(ranges ...func(addr net.IP) bool) *IPRules {
+func NewBlockIPRules(matchers ...func(addr net.IP) bool) *IPRules {
 	this := new(IPRules)
 	this.permission = true
-	this.ranges = ranges
+	this.matchers = matchers
 	this.idx = 0
-	this.length = len(ranges)
+	this.length = len(matchers)
 	this.mutex = new(sync.Mutex)
 	return this
 }
 
-func NewAllowIPRules(ranges ...func(addr net.IP) bool) *IPRules {
+func NewAllowIPRules(matchers ...func(addr net.IP) bool) *IPRules {
 	this := new(IPRules)
 	this.permission = false
-	this.ranges = ranges
+	this.matchers = matchers
 	this.idx = 0
-	this.length = len(ranges)
+	this.length = len(matchers)
 	this.mutex = new(sync.Mutex)
 	return this
 }
@@ -38,7 +38,7 @@ func (this *IPRules) IsForbiddenIP(addr net.IP) bool {
 	defer this.mutex.Unlock()
 
 	for this.idx < this.length {
-		if this.ranges[this.idx](addr) {
+		if this.matchers[this.idx](addr) {
 			this.idx = 0
 			return this.permission
 		}
