@@ -6,27 +6,27 @@ import (
 	"testing"
 )
 
-func TestIRanges(t *testing.T) {
-	blocker := NewBlockIPRunes(IsBlockRecommended)
-	allower := NewAllowIPRunes(IsPrivate)
+func TestIRules(t *testing.T) {
+	blocker := NewBlockIPRules(IsBlockRecommended)
+	allower := NewAllowIPRules(IsPrivate)
 	ip := net.IPv4(10, 0, 0, 1)
 
 	if !blocker.IsForbiddenIP(ip) {
-		t.Errorf("Test IPRunes.IsForbiddenIP failed:\nwant: true\ngot: false")
+		t.Errorf("Test IPRules.IsForbiddenIP failed:\nwant: true\ngot: false")
 	}
 
 	if allower.IsForbiddenIP(ip) {
-		t.Errorf("Test IPRunes.IsForbiddenIP failed:\nwant: false\ngot: true")
+		t.Errorf("Test IPRules.IsForbiddenIP failed:\nwant: false\ngot: true")
 	}
 }
 
-func BenchmarkIPRunes(b *testing.B) {
+func BenchmarkIPRules(b *testing.B) {
 	var (
 		src []byte = make([]byte, 4)
 		ips        = make([]net.IP, 64)
 	)
 
-	blocker := NewBlockIPRunes(IsBlockRecommended)
+	blocker := NewBlockIPRules(IsBlockRecommended)
 
 	for idx := 0; idx < 64; idx++ {
 		rand.Read(src)
