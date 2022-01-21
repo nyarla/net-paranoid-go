@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestIRules(t *testing.T) {
+func TestIPRules(t *testing.T) {
 	blocker := NewBlockIPRules(IsBlockRecommended)
 	allower := NewAllowIPRules(IsPrivate)
 	ip := net.IPv4(10, 0, 0, 1)
