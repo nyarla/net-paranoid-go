@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type IPRanges struct {
+type IPRunes struct {
 	permission bool
 	ranges     []func(addr net.IP) bool
 	idx        int
@@ -13,8 +13,8 @@ type IPRanges struct {
 	mutex      *sync.Mutex
 }
 
-func NewBlockIPRanges(ranges ...func(addr net.IP) bool) *IPRanges {
-	this := new(IPRanges)
+func NewBlockIPRunes(ranges ...func(addr net.IP) bool) *IPRunes {
+	this := new(IPRunes)
 	this.permission = true
 	this.ranges = ranges
 	this.idx = 0
@@ -23,8 +23,8 @@ func NewBlockIPRanges(ranges ...func(addr net.IP) bool) *IPRanges {
 	return this
 }
 
-func NewAllowIPRanges(ranges ...func(addr net.IP) bool) *IPRanges {
-	this := new(IPRanges)
+func NewAllowIPRunes(ranges ...func(addr net.IP) bool) *IPRunes {
+	this := new(IPRunes)
 	this.permission = false
 	this.ranges = ranges
 	this.idx = 0
@@ -33,7 +33,7 @@ func NewAllowIPRanges(ranges ...func(addr net.IP) bool) *IPRanges {
 	return this
 }
 
-func (this *IPRanges) IsForbiddenIP(addr net.IP) bool {
+func (this *IPRunes) IsForbiddenIP(addr net.IP) bool {
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 
