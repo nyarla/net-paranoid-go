@@ -10,11 +10,11 @@ type IPRules interface {
 }
 
 type ipRules struct {
-	permission bool
+	mutex      *sync.Mutex
 	matchers   []func(addr net.IP) bool
 	idx        int
 	length     int
-	mutex      *sync.Mutex
+	permission bool
 }
 
 func NewBlockIPRules(matchers ...func(addr net.IP) bool) IPRules {

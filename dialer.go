@@ -14,15 +14,15 @@ type ParanoidDialer interface {
 type paranoidDialer struct {
 	ipRules   IPRules
 	hostRules HostRules
+	err       error
 	parent    *net.Dialer
-	mutex     sync.Mutex
-	idx       int
-	ip        net.IP
+	resolver  *net.Resolver
 	host      string
 	port      string
+	ip        net.IP
 	addrs     []net.IPAddr
-	err       error
-	resolver  *net.Resolver
+	idx       int
+	mutex     sync.Mutex
 }
 
 func (this *paranoidDialer) DialContext(ctx context.Context, network, addr string) (net.Conn, error) {

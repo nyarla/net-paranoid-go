@@ -23,8 +23,8 @@ type HostMatcher interface {
 }
 
 type stringHostMatcher struct {
-	cmp     string
 	matcher func(src, cmp string) bool
+	cmp     string
 }
 
 func (this *stringHostMatcher) MatchHost(src string) bool {
@@ -57,11 +57,11 @@ type HostRules interface {
 }
 
 type hostRules struct {
-	permission bool
+	mutex      *sync.Mutex
 	matchers   []HostMatcher
 	idx        int
 	length     int
-	mutex      *sync.Mutex
+	permission bool
 }
 
 func NewBlockHostRules(matchers ...HostMatcher) HostRules {
